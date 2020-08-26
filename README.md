@@ -19,8 +19,10 @@ The implementation in this repository is little different from Winnow in the fol
  - I have added a epoch-based learning
  - The version of Winnow has a demotion step where weights are not made 0, rather divided by the multiplicative factor (\alpha). This is called "Winnow2".
  - I have implemented early stopping with a validation set to make the model capable of generalisation.
+ - The parameters of Winnow2 (\alpha and threshold) are tuned.
 
-* I will keep on adding new variants of this as and when ready. Thanks for watching!
+
+I will keep on adding new variants of this as and when ready. Thanks for watching!
 
 ### Cite as
 
