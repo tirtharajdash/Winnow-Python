@@ -65,7 +65,7 @@ def predictOne(W, X, thres):
     netsum = np.sum(W * X) #net sum
     
     #threshold check
-    if netsum >= Thres[0]:
+    if netsum >= thres:
         y_hat = 1
     else:
         y_hat = 0
@@ -165,7 +165,7 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
                     train_perf  = ComputePerf(W, X_train, y_train, thres)
                     
                     #update the model with new params
-                    model['W'] = W.copy() #optima W
+                    model['W'] = W.copy() #optimal W
                     model['alpha'] = alpha #optimal alpha
                     model['thres'] = thres #optimal threshold
                     model['train_perf'] = train_perf #training performance
