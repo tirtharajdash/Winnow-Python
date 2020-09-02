@@ -18,43 +18,38 @@ seedval = 2018
 np.random.seed(seedval)
 
 
-#function to load data file and return train, val, test split
-def load_data(trainfile='train.csv', testfile='test.csv'):
+#load the data and prepare X and y
+Data = pd.read_csv("train.csv",header=None)
+print('Dimension of Data ( Instances: ',Data.shape[0],', Features: ',Data.shape[1]-1,' )')
 
-    #load the data and prepare X and y
-    Data = pd.read_csv("train.csv",header=None)
-    print('Dimension of Data ( Instances: ',Data.shape[0],', Features: ',Data.shape[1]-1,' )')
+#X = Data[Data.columns[0:3800]] #only for Hide-and-Seek features to match ILP results
+X = Data.drop([Data.columns[-1]], axis=1) #for random features
+y = Data[Data.columns[-1]]
+print('Dimension of X: ',X.shape)
+print('Dimension of y: ',y.shape)
 
-    #X = Data[Data.columns[0:3800]] #only for Hide-and-Seek features to match ILP results
-    X = Data.drop([Data.columns[-1]], axis=1) #for random features
-    y = Data[Data.columns[-1]]
-    print('Dimension of X: ',X.shape)
-    print('Dimension of y: ',y.shape)
+#prepare the training and validation set from X and y
+X_train, X_val, y_train, y_val = train_test_split(X, y, 
+                                                  test_size=0.20, 
+                                                  random_state=42,
+                                                  stratify=y,
+                                                  shuffle=True)
 
-    #prepare the training and validation set from X and y
-    X_train, X_val, y_train, y_val = train_test_split(X, y, 
-                                                      test_size=0.20, 
-                                                      random_state=42,
-                                                      stratify=y,
-                                                      shuffle=True)
-
-    print('\nDimension of X_train: ',X_train.shape)
-    print('Dimension of y_train: ',y_train.shape)
-    print('Dimension of X_val: ',X_val.shape)
-    print('Dimension of y_val: ',y_val.shape)
+print('\nDimension of X_train: ',X_train.shape)
+print('Dimension of y_train: ',y_train.shape)
+print('Dimension of X_val: ',X_val.shape)
+print('Dimension of y_val: ',y_val.shape)
 
 
-    #load the holdout/test set
-    Data_test = pd.read_csv("test.csv",header=None)
-    print('\nDimension of Data_test ( Instances: ',Data_test.shape[0],', Features: ',Data_test.shape[1]-1,' )')
+#load the holdout/test set
+Data_test = pd.read_csv("test.csv",header=None)
+print('\nDimension of Data_test ( Instances: ',Data_test.shape[0],', Features: ',Data_test.shape[1]-1,' )')
 
-    #X_test = Data_test[Data_test.columns[0:3800]]
-    X_test = Data_test.drop([Data_test.columns[-1]], axis=1) #for random features
-    y_test = Data_test[Data_test.columns[-1]]
-    print('Dimension of X: ',X_test.shape)
-    print('Dimension of y: ',y_test.shape)
-    
-    return X_train, y_train, X_val, y_val, X_test, y_test
+#X_test = Data_test[Data_test.columns[0:3800]]
+X_test = Data_test.drop([Data_test.columns[-1]], axis=1) #for random features
+y_test = Data_test[Data_test.columns[-1]]
+print('Dimension of X: ',X_test.shape)
+print('Dimension of y: ',y_test.shape)
 
 
 #function to calculate accuracy
@@ -109,7 +104,7 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
     
     n = X_train.shape[1]
     best_perf = 0. #best val set performance so far
-    grid_space = len(params['Alpha'])*len(params['Thres']) #size of grid space
+    grid_space = len(params['Thres'])*len(params['Alpha']) #size of grid space
     grid_iter = 0 #grid search iterator
     
     #model dictionary
@@ -170,7 +165,7 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
                     train_perf  = ComputePerf(W, X_train, y_train, thres)
                     
                     #update the model with new params
-                    model['W'] = W.copy() #optima W
+                    model['W'] = W.copy() #optimal W
                     model['alpha'] = alpha #optimal alpha
                     model['thres'] = thres #optimal threshold
                     model['train_perf'] = train_perf #training performance
@@ -194,60 +189,52 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
     return model
 
 
-#main function
-def main():
+#Winnow2 algorithm hyperparameters (will be decided based on a validation set)
+n = X_train.shape[1] #number of features
+Thres = [n, n//2] #decision threshold
+Alpha = [2, 3, 4] #multiplicative factor for weight (promotion or demotion)
 
-    #call function to get the splits
-    X_train, y_train, X_val, y_val, X_test, y_test = load_data(trainfile='train.csv', testfile='test.csv')
+#algorithm param dict
+params = {'Thres': Thres, 'Alpha': Alpha}
 
-    #Winnow2 algorithm hyperparameters (will be decided based on a validation set)
-    n = X_train.shape[1] #number of features
-    Thres = [n, n//2] #decision threshold
-    Alpha = [2, 3, 4] #multiplicative factor for weight (promotion or demotion)
+#trainign hyperparameters
+patience = 20 #patience period for early-stopping
+max_epoch = 200 #maximum Winnow epochs
 
-    #algorithm param dict
-    params = {'Thres': Thres, 'Alpha': Alpha}
-
-    #trainign hyperparameters
-    patience = 20 #patience period for early-stopping
-    max_epoch = 200 #maximum Winnow epochs
-
-    #call for training and model selection
-    model = TrainWinnow2(X_train, y_train, 
-                         X_val, y_val, 
-                         params=params, 
-                         max_epoch=max_epoch, 
-                         patience=20, 
-                         verbose=False)
+#call for training and model selection
+model = TrainWinnow2(X_train, y_train, 
+                     X_val, y_val, 
+                     params=params, 
+                     max_epoch=max_epoch, 
+                     patience=20, 
+                     verbose=True)
 
 
-    #Optimal hyperparameters for Winnow2 using validation set
-    print('Best model:', model)
-
-    #test the performance of model on test set
-    acc = ComputePerf(model['W'], X_test, y_test, model['thres'])
-    print('Independent test accuracy:',acc)
-
-    #store the results
-    with open('score.txt','w') as fp:
-        fp.write(str(acc)+'\n')
-    fp.close()
-
-    #save the trained model (dict)
-    with open('model.pkl', 'wb') as fp:
-        pickle.dump(model, fp, pickle.HIGHEST_PROTOCOL)
-    fp.close()
+#Optimal hyperparameters for Winnow2 using validation set
+print('Best model:', model)
 
 
-    #load and test the saved model
-    #with open('model.pkl', 'rb') as fp:
-    #    savedmodel = pickle.load(fp)
-    #acc = ComputePerf(model['W'], X_test, y_test, model['thres'])
-    #print(acc)
-    #print(classification_report(y_test, predictAll(W, X_test, thres)))
-    #fp.close()
-    
-    
-if __name__ == '__main__':
-    main()
+#test the performance of model on test set
+acc = ComputePerf(model['W'], X_test, y_test, model['thres'])
+print('Independent test accuracy:',acc)
+
+#store the results
+with open('score.txt','w') as fp:
+    fp.write(str(acc)+'\n')
+fp.close()
+
+
+#save the trained model (dict)
+with open('model.pkl', 'wb') as fp:
+    pickle.dump(model, fp, pickle.HIGHEST_PROTOCOL)
+fp.close()
+
+
+#load and test the saved model
+#with open('model.pkl', 'rb') as fp:
+#    savedmodel = pickle.load(fp)
+#acc = ComputePerf(model['W'], X_test, y_test, model['thres'])
+#print(acc)
+#print(classification_report(y_test, predictAll(W, X_test, thres)))
+#fp.close()
 
