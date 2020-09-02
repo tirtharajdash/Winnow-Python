@@ -104,7 +104,7 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
     
     n = X_train.shape[1]
     best_perf = 0. #best val set performance so far
-    grid_space = len(Thres)*len(Alpha) #size of grid space
+    grid_space = len(params['Thres'])*len(params['Alpha']) #size of grid space
     grid_iter = 0 #grid search iterator
     
     #model dictionary
