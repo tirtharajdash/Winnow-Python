@@ -34,12 +34,12 @@ Note that the notebook file (.ipynb) and .py file may be different. The latest i
 $ python winnow2.py (verbose was set to False)\
 Dimension of Data ( Instances:  2434 , Features:  5000  )\
 Dimension of X:  (2434, 5000)\
-Dimension of y:  (2434,)\
+Dimension of y:  (2434,)
 
 Dimension of X_train:  (1947, 5000)\
 Dimension of y_train:  (1947,)\
 Dimension of X_val:  (487, 5000)\
-Dimension of y_val:  (487,)\
+Dimension of y_val:  (487,)
 
 Dimension of Data_test ( Instances:  1044 , Features:  5000  )\
 Dimension of X:  (1044, 5000)\
@@ -63,12 +63,12 @@ Model found and saved.
 Trying::	 alpha: 2 threshold: 2500 	( 2 of 6 )\
 -----------------------------------------------------------------\
 Stopping early after epoch 20\
-No better model found.\
+No better model found.
 
 -----------------------------------------------------------------\
 Trying::	 alpha: 3 threshold: 5000 	( 3 of 6 )\
 -----------------------------------------------------------------\
-...\
+...
 
 
 ### Cite as
