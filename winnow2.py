@@ -148,10 +148,10 @@ def TrainWinnow2(X_train, y_train, X_val, y_val, params, max_epoch=10, patience=
                         Idx = np.where(X_train.iloc[i,:] == 1)
 
                         if y_hat == 0: 
-                            W[Idx] = W[Idx] * alpha #netsum was too small (promotion step)
+                            W[Idx] *= alpha #netsum was too small (promotion step)
 
                         else:
-                            W[Idx] = W[Idx] / alpha #netsum was too high (demotion step)
+                            W[Idx] /= alpha #netsum was too high (demotion step)
 
                 
                 #compute performance on val set
